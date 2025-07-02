@@ -1,38 +1,137 @@
-.App {
-  text-align: center;
+body, html, #root {
+  height: 100%;
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to bottom, #7e3ff2, #000000);
+  color: #ffffff;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.game-wrapper {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+.score-panel {
+  width: 180px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  margin-right: 30px;
+  text-align: left;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.score-panel h2 {
+  margin-top: 0;
+  color: #ffffff;
+}
+
+.container {
+  text-align: center;
+  flex-grow: 1;
+}
+
+h1 {
+  margin-bottom: 10px;
+  background: linear-gradient(to right, #d3aaff, #ffffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.grid {
+  display: grid;
+  gap: 10px;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  margin-top: 20px;
+}
+
+.grid-6x6 {
+  grid-template-columns: repeat(6, 80px);
+}
+
+
+.tile-wrapper {
+  width: 80px;
+  height: 80px;
+  perspective: 800px;
+}
+
+.card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.card.flipped {
+  transform: rotateY(180deg);
+}
+
+.front, .back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 5px;
+  border: 2px solid white;
+}
+
+.front {
+  background: linear-gradient(to bottom, #9b5de5, #000000);
+}
+
+.back {
+  transform: rotateY(180deg);
+}
+
+
+@keyframes explode {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+    background-color: red;
+  }
+  30% {
+    transform: scale(1.4);
+    opacity: 0.8;
+    background-color: orange;
+  }
+  60% {
+    transform: scale(0.9);
+    opacity: 0.5;
+    background-color: yellow;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+    background-color: transparent;
+  }
+}
+
+.exploded {
+  animation: explode 0.6s ease-out forwards;
+  z-index: 2;
+  position: relative;
+}
+
+
+.choice button,
+.reset-btn {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background: linear-gradient(to right, #a855f7, #6b21a8);
+  border: none;
+  border-radius: 5px;
   color: white;
+  transition: background 0.3s ease;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.choice button:hover,
+.reset-btn:hover {
+  background: linear-gradient(to right, #c084fc, #7c3aed);
 }
