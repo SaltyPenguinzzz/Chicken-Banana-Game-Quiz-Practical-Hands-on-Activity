@@ -26,51 +26,28 @@ function generateRandomGrid(size = 36) {
 function App() {
   const [tiles, setTiles] = useState([]);
   const [playerChoice, setPlayerChoice] = useState(null);
-  const [currentPlayer, setCurrentPlayer] = useState(null);
-  const [gameOver, setGameOver] = useState(false);
+  const [score, setScore] = useState(0);
   const [message, setMessage] = useState('');
-  const [score, setScore] = useState({ banana: 0, chicken: 0 });
-  const [matchScore, setMatchScore] = useState({ banana: 0, chicken: 0 });
-  const [explodedIndex, setExplodedIndex] = useState(null);
+  const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
     setTiles(generateRandomGrid());
   }, []);
 
-  const resetGame = () => {
-    setGameOver(false);
-    setMessage('');
-    setScore({ banana: 0, chicken: 0 });
-    setExplodedIndex(null);
-
-    if (currentPlayer === 'chicken') {
-      setPlayerChoice('banana');
-      setCurrentPlayer('banana');
-    } else if (currentPlayer === 'banana') {
-      setPlayerChoice('chicken');
-      setCurrentPlayer('chicken');
-    } else {
-      setPlayerChoice(null);
-      setCurrentPlayer(null);
-    }
-  };
-
   const resetFullGame = () => {
     setTiles(generateRandomGrid());
-    setMatchScore({ banana: 0, chicken: 0 });
+    setScore(0);
     setGameOver(false);
     setMessage('');
-    setScore({ banana: 0, chicken: 0 });
-    setExplodedIndex(null);
     setPlayerChoice(null);
-    setCurrentPlayer(null);
   };
 
   const handlePlayerChoice = (choice) => {
-    if (!playerChoice) {
-      setPlayerChoice(choice);
-      setCurrentPlayer(choice);
-    }
+    setPlayerChoice(choice);
+    setMessage('');
+    setScore(0);
+    setGameOver(false);
+    setTiles(generateRandomGrid());
   };
 
   const handleClick = (tileIndex) => {
@@ -81,65 +58,28 @@ function App() {
 
     if (clickedTile.revealed) return;
 
+    newTiles[tileIndex].revealed = true;
+    setTiles(newTiles);
+
     if (clickedTile.type === playerChoice) {
-      newTiles[tileIndex].revealed = true;
-      const updatedScore = { ...score };
-      updatedScore[playerChoice] += 1;
-      setScore(updatedScore);
-      setTiles(newTiles);
+      const newScore = score + 1;
+      setScore(newScore);
+      setMessage(`✅ Correct! Your score is now ${newScore}`);
 
-      const totalToFind = newTiles.filter(t => t.type === playerChoice).length;
-      const totalFound = newTiles.filter(t => t.revealed && t.type === playerChoice).length;
-
-      if (totalFound === totalToFind) {
-        const finalScore = matchScore[playerChoice] + 5;
-        const updatedMatch = {
-          ...matchScore,
-          [playerChoice]: finalScore,
-        };
-        setMatchScore(updatedMatch);
-
-        if (finalScore >= 10) {
-          setMessage(`🎉 ${playerChoice.toUpperCase()} wins the MATCH with ${finalScore} points! 🏆`);
-          setGameOver(true);
-          setPlayerChoice(null);
-          return;
-        }
-
-        setMessage(`🎉 ${playerChoice.toUpperCase()} wins this round! +5 bonus grade`);
+      if (newScore >= 5) {
+        setMessage(`🎉 You won the game with ${newScore} points! 🏆`);
         setGameOver(true);
-        return;
       }
     } else {
-      newTiles[tileIndex].revealed = true;
-      setTiles(newTiles);
-      setExplodedIndex(tileIndex);
-
-      const opponent = playerChoice === 'banana' ? 'chicken' : 'banana';
-      const updatedMatch = {
-        ...matchScore,
-        [opponent]: matchScore[opponent] + 1,
-      };
-      setMatchScore(updatedMatch);
-
-      if (updatedMatch[opponent] >= 10) {
-        setMessage(`💥 Wrong tile! ${opponent.toUpperCase()} wins the MATCH with ${updatedMatch[opponent]} points! 🏆`);
-        setGameOver(true);
-        setPlayerChoice(null);
-        return;
-      }
-
-      setMessage(`💥 Wrong tile! ${opponent.toUpperCase()} wins this round!`);
-      setGameOver(true);
+      setMessage(`❌ Wrong tile! Try again.`);
     }
   };
 
   return (
     <div className="game-wrapper">
       <div className="score-panel">
-        <h2>Total Score</h2>
-        <p>🐔 Chicken: {matchScore.chicken}</p>
-        <p>🍌 Banana: {matchScore.banana}</p>
+        <h2>Score</h2>
+        <p>{playerChoice ? `${playerChoice.toUpperCase()}: ${score}` : '-'}</p>
       </div>
 
       <div className="container">
@@ -159,7 +99,7 @@ function App() {
           {tiles.map((tile, index) => (
             <div
               key={index}
-              className={`tile-wrapper ${explodedIndex === index ? 'exploded' : ''}`}
+              className="tile-wrapper"
               onClick={() => handleClick(index)}
             >
               <div className={`card ${tile.revealed ? 'flipped' : ''}`}>
@@ -179,10 +119,8 @@ function App() {
 
         {message && <h2>{message}</h2>}
 
-        {(matchScore.chicken >= 10 || matchScore.banana >= 10) ? (
+        {gameOver && (
           <button onClick={resetFullGame} className="reset-btn">🎮 New Game</button>
-        ) : (
-          playerChoice && <button onClick={resetGame} className="reset-btn">🔁 Next Round</button>
         )}
       </div>
     </div>
